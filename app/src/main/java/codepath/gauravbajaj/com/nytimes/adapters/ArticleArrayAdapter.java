@@ -54,6 +54,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         //clear out the recycle image from the convertview from the last time
         imageView.setImageResource(0);
         TextView tvTitle = (TextView) convertView.findViewById(R.id.item_article_image_text);
+        String headLine = "";
         tvTitle.setText(article.getMainHeadLine());
         String thumbNail = article.getThumbNail();
         if (TextUtils.isEmpty(thumbNail) == false) {
