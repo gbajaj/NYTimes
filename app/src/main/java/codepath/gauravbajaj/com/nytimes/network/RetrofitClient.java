@@ -1,6 +1,7 @@
 package codepath.gauravbajaj.com.nytimes.network;
 
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -12,6 +13,7 @@ public class RetrofitClient {
     public Retrofit NYSearchClient() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.nytimes.com/svc/search/v2/")
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return retrofit;

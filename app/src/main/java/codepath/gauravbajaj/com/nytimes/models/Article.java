@@ -7,11 +7,6 @@ import android.text.TextUtils;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import codepath.gauravbajaj.com.nytimes.network.Headline;
@@ -24,7 +19,6 @@ public class Article implements Parcelable {
     @SerializedName("web_url")
     @Expose
     String weburl;
-
     public String getWeburl() {
         return weburl;
     }
@@ -32,11 +26,13 @@ public class Article implements Parcelable {
     @SerializedName("headline")
     @Expose
     Headline headLine;
+
     @SerializedName("multimedia")
     @Expose
     List<Multimedia> multimediaList;
 
     String mainHeadLine;
+    String thumbNail = "";
 
     public String getMainHeadLine() {
         if (TextUtils.isEmpty(thumbNail) && headLine != null) {
@@ -51,32 +47,6 @@ public class Article implements Parcelable {
         }
         return thumbNail;
     }
-
-    String thumbNail = "";
-
-    public Article(JSONObject jsonObject) throws JSONException {
-        weburl = jsonObject.getString("web_url");
-        mainHeadLine = jsonObject.getJSONObject("headline").getString("main");
-        JSONArray multimedia = jsonObject.getJSONArray("multimedia");
-        if (multimedia.length() > 0) {
-            JSONObject multiMediaJson = multimedia.getJSONObject(0);
-            this.thumbNail = "http://www.nytimes.com/" + multiMediaJson.getString("url");
-        }
-
-    }
-
-    public static ArrayList<Article> fromJSONArray(JSONArray jsonArray) {
-        ArrayList<Article> results = new ArrayList<>();
-        for (int x = 0; x < jsonArray.length(); x++) {
-            try {
-                results.add(new Article(jsonArray.getJSONObject(x)));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return results;
-    }
-
 
     protected Article(Parcel in) {
         weburl = in.readString();

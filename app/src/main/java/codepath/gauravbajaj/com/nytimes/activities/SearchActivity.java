@@ -1,5 +1,6 @@
 package codepath.gauravbajaj.com.nytimes.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
@@ -20,8 +21,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import codepath.gauravbajaj.com.nytimes.NYTimesApp;
 import codepath.gauravbajaj.com.nytimes.R;
 import codepath.gauravbajaj.com.nytimes.adapters.ArticleArrayAdapter;
+import codepath.gauravbajaj.com.nytimes.data.UserPreferences;
 import codepath.gauravbajaj.com.nytimes.fragments.DatePickerFragment;
 import codepath.gauravbajaj.com.nytimes.fragments.SettingsDialogFragment;
 import codepath.gauravbajaj.com.nytimes.models.Article;
@@ -30,6 +33,10 @@ import codepath.gauravbajaj.com.nytimes.network.RetrofitClient;
 import codepath.gauravbajaj.com.nytimes.network.RetrofitRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class SearchActivity extends AppCompatActivity {
     private static final String TAG = SearchActivity.class.getSimpleName();
@@ -45,6 +52,7 @@ public class SearchActivity extends AppCompatActivity {
     ArrayList<Article> articles = new ArrayList<>();
     ArticleArrayAdapter articleArrayAdapter;
     Handler handler = new Handler();
+    UserPreferences userPreferences = new UserPreferences();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,47 +63,42 @@ public class SearchActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         articleArrayAdapter = new ArticleArrayAdapter(this, articles);
         gtResults.setAdapter(articleArrayAdapter);
+
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final String query = etQuery.getText().toString();
                 if (TextUtils.isEmpty(query) == false) {
-                    Thread t = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            RetrofitRequest.NYTimesArticleSearch apiService = new RetrofitClient().NYSearchClient()
-                                    .create(RetrofitRequest.NYTimesArticleSearch.class);
+                    RetrofitRequest.NYTimesArticleSearch apiService = new RetrofitClient().NYSearchClient()
+                            .create(RetrofitRequest.NYTimesArticleSearch.class);
+                    String searchBeginDate = userPreferences.searchBeginValue();
+                    String sortOrder = userPreferences.getSortOrder();
 
-                            Call<NYResponse> searchResponseCall = apiService.getArticles(query, "0", "5a45d2a34a0f4225a786bcb7086ad327");
-                            searchResponseCall.enqueue(new Callback<NYResponse>() {
-                                                           @Override
-                                                           public void onResponse(Call<NYResponse> call, retrofit2.Response<NYResponse> response) {
-                                                               try {
-                                                                   final List<Article> articles = response.body().getResponse().getArticles();
-                                                                   handler.post(new Runnable() {
-                                                                       @Override
-                                                                       public void run() {
-                                                                           articleArrayAdapter.addAll(articles);
-                                                                       }
-                                                                   });
+                    Log.d(TAG, "Message " + searchBeginDate);
+                    String newsDesk  = userPreferences.getNewsDeskValues();
+                    Observable<NYResponse> observable = apiService.getArticles(
+                            query, "0", "5a45d2a34a0f4225a786bcb7086ad327", searchBeginDate,
+                            sortOrder, newsDesk);
+                    observable.subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Subscriber<NYResponse>() {
+                                @Override
+                                public void onCompleted() {
 
-                                                                   Log.d(TAG, "Message " + articles);
+                                }
 
-                                                               } catch (Exception ex) {
-                                                                   ex.printStackTrace();
-                                                               }
-                                                           }
+                                @Override
+                                public void onError(Throwable e) {
+                                    // cast to retrofit.HttpException to get the response code
+                                }
 
-                                                           @Override
-                                                           public void onFailure(Call<NYResponse> call, Throwable t) {
-
-                                                           }
-                                                       }
-                            );
-
-                        }
-                    });
-                    t.start();
+                                @Override
+                                public void onNext(NYResponse nyResponse) {
+                                    final List<Article> articles = nyResponse.getResponse().getArticles();
+                                    articleArrayAdapter.clear();
+                                    articleArrayAdapter.addAll(articles);
+                                }
+                            });
                 }
                 Toast.makeText(SearchActivity.this, "searching for " + query, Toast.LENGTH_SHORT).show();
             }

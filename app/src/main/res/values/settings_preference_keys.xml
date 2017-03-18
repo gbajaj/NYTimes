@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_key_search_news_sort_order">pref_key_search_news_sort_order</string>
+    <string name="pref_key_search_news_begin_date">pref_key_search_news_begin_date</string>
+    <string name="pref_key_search_news_desk_value_art">pref_key_search_news_desk_value_art</string>
+    <string name="pref_key_search_news_desk_value_fashion">pref_key_search_news_desk_value_fashion</string>
+    <string name="pref_key_search_news_desk_value_sports">pref_key_search_news_desk_value_sports</string>
+</resources>

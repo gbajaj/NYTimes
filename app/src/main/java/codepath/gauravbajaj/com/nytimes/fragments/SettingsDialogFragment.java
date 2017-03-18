@@ -1,7 +1,6 @@
 package codepath.gauravbajaj.com.nytimes.fragments;
 
 import android.app.DatePickerDialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -22,8 +21,8 @@ import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import codepath.gauravbajaj.com.nytimes.NYTimesApp;
 import codepath.gauravbajaj.com.nytimes.R;
+import codepath.gauravbajaj.com.nytimes.data.UserPreferences;
 
 /**
  * Created by gauravb on 3/15/17.
@@ -45,8 +44,7 @@ public class SettingsDialogFragment extends android.support.v4.app.DialogFragmen
     CheckBox newDeskValuesChkBoxFashion;
     @BindView(R.id.settings_dialog_chk_sports)
     CheckBox newDeskValuesChkBoxSports;
-    final SharedPreferences sharedPreferences = NYTimesApp.instance().getDefaultSharedPreferences();
-    final SharedPreferences.Editor editor = sharedPreferences.edit();
+    UserPreferences userPreferences = new UserPreferences();
     private Date newsBeginDate = null;
     private boolean enableArtSearch = false;
     private boolean enableFashionSearch = false;
@@ -69,22 +67,22 @@ public class SettingsDialogFragment extends android.support.v4.app.DialogFragmen
         });
         ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sort_order_array, R.layout.spinner_item1);
         sortOrderSpinner.setAdapter(adapter);
-        setSpinnerToValue(sortOrderSpinner, sharedPreferences.getString("pref_key_search_news_sort_order", "oldest"));
+        setSpinnerToValue(sortOrderSpinner, userPreferences.getSortOrder());
 
         //init arts with saved preferences
-        enableArtSearch = sharedPreferences.getBoolean("pref_key_search_news_desk_value_art", false);
+        enableArtSearch = userPreferences.isArtNewsEnabled();
         newDeskValuesChkBoxArts.setChecked(enableArtSearch);
 
         //init fashion with saved preferences
-        enableFashionSearch = sharedPreferences.getBoolean("pref_key_search_news_desk_value_fashion", false);
+        enableFashionSearch = userPreferences.isFashionNewsEnabled();
         newDeskValuesChkBoxFashion.setChecked(enableFashionSearch);
 
         //init sports with saved preferences
-        enableSportsSearch = sharedPreferences.getBoolean("pref_key_search_news_desk_value_sports", false);
+        enableSportsSearch = userPreferences.isSportsNewsEnabled();
         newDeskValuesChkBoxSports.setChecked(enableSportsSearch);
 
         //init begin date with saved preferences or set to default
-        long savedDate = sharedPreferences.getLong("pref_key_search_news_begin_date", -1);
+        long savedDate = userPreferences.getSearchBeginDate();
         if (savedDate == -1) {
             newsBeginDate = defaultBeginDate();
         } else {
@@ -101,18 +99,17 @@ public class SettingsDialogFragment extends android.support.v4.app.DialogFragmen
                 String value = sortOrderSpinner.getSelectedItem().toString();
                 Log.d(TAG, "News Sort Order " + value);
                 //save spinner value
-                editor.putString("pref_key_search_news_sort_order", value);
+                userPreferences.setSortOrder(value);
 
                 //save begin date
-                editor.putLong("pref_key_search_news_begin_date", newsBeginDate.getTime());
+                userPreferences.setBeginDate(newsBeginDate.getTime());
                 Log.d(TAG, "Date Saved " + newsBeginDate);
 
                 //save news desk values
-                editor.putBoolean("pref_key_search_news_desk_value_art", enableArtSearch);
-                editor.putBoolean("pref_key_search_news_desk_value_fashion", enableFashionSearch);
-                editor.putBoolean("pref_key_search_news_desk_value_sports", enableSportsSearch);
-
-                editor.commit();
+                userPreferences.setArtNewsEnable(enableArtSearch);
+                userPreferences.setFashionNewsEnable(enableFashionSearch);
+                userPreferences.setSportsNewsEnable(enableSportsSearch);
+                userPreferences.commit();
                 SettingsDialogFragment.this.dismiss();
             }
         });
