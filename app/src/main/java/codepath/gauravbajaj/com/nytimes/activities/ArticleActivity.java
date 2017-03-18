@@ -6,6 +6,8 @@ import android.support.v7.widget.Toolbar;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.parceler.Parcels;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import codepath.gauravbajaj.com.nytimes.R;
@@ -22,7 +24,7 @@ public class ArticleActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Article article = getIntent().getParcelableExtra("article");
+        Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
         webView.setWebViewClient(
                 new WebViewClient() {
                     @Override

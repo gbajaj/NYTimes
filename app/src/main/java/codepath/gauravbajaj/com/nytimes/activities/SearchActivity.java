@@ -86,11 +86,11 @@ public class SearchActivity extends AppCompatActivity {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     nyResponse -> {
-                                    final List<Article> articles = nyResponse.getResponse().getArticles();
-                                    articleArrayList.clear();
-                                    articleArrayList.addAll(articles);
-                                    articleAdaptersEndlessScrollListener.resetState();
-                                    articleArrayAdapter.notifyDataSetChanged();
+                                        final List<Article> articles = nyResponse.getResponse().getArticles();
+                                        articleArrayList.clear();
+                                        articleArrayList.addAll(articles);
+                                        articleAdaptersEndlessScrollListener.resetState();
+                                        articleArrayAdapter.notifyDataSetChanged();
                                     },
                                     throwable -> Log.d(TAG, "Message "),
                                     () -> Log.d(TAG, "onComplete()"));
@@ -117,9 +117,9 @@ public class SearchActivity extends AppCompatActivity {
                 subscribeOn(Schedulers.io()).
                 observeOn(AndroidSchedulers.mainThread()).subscribe(
                 nyResponse -> {
-                final List<Article> articles = nyResponse.getResponse().getArticles();
-                articleArrayList.addAll(articles);
-                articleArrayAdapter.notifyDataSetChanged();
+                    final List<Article> articles = nyResponse.getResponse().getArticles();
+                    articleArrayList.addAll(articles);
+                    articleArrayAdapter.notifyDataSetChanged();
                 },
 
                 throwable -> Toast.makeText(context, "Error Loading results", Toast.LENGTH_SHORT).show(),

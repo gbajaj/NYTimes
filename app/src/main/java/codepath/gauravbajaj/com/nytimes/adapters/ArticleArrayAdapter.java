@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -112,7 +114,7 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
                         Article article = articleArrayList.get(position);
                         // We can access the data within the views
                         Intent i = new Intent(context, ArticleActivity.class);
-                        i.putExtra("article", article);
+                        i.putExtra("article", Parcels.wrap(article));
                         context.startActivity(i);
                         Log.d(TAG, "Message " + article + " clicked");
                     }

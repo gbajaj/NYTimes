@@ -1,7 +1,5 @@
 package codepath.gauravbajaj.com.nytimes.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -15,10 +13,12 @@ import codepath.gauravbajaj.com.nytimes.network.Multimedia;
 /**
  * Created by gauravb on 3/6/17.
  */
-public class Article implements Parcelable {
+@org.parceler.Parcel
+public class Article {
     @SerializedName("web_url")
     @Expose
     String weburl;
+
     public String getWeburl() {
         return weburl;
     }
@@ -47,37 +47,6 @@ public class Article implements Parcelable {
         }
         return thumbNail;
     }
-
-    protected Article(Parcel in) {
-        weburl = in.readString();
-        mainHeadLine = in.readString();
-        thumbNail = in.readString();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(weburl);
-        dest.writeString(mainHeadLine);
-        dest.writeString(thumbNail);
-    }
-
-    @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Article> CREATOR = new Parcelable.Creator<Article>() {
-        @Override
-        public Article createFromParcel(Parcel in) {
-            return new Article(in);
-        }
-
-        @Override
-        public Article[] newArray(int size) {
-            return new Article[size];
-        }
-    };
 
     @Override
     public String toString() {
