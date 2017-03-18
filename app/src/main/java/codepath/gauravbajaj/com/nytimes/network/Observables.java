@@ -2,6 +2,7 @@ package codepath.gauravbajaj.com.nytimes.network;
 
 import android.util.Log;
 
+import codepath.gauravbajaj.com.nytimes.models.NYResponse;
 import retrofit2.Retrofit;
 import rx.Observable;
 

@@ -45,7 +45,6 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         }
     }
 
-
     @Override
     public ArticleArrayAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -106,18 +105,15 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
             // to access the context from any ViewHolder instance.
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                        Article article = articleArrayList.get(position);
-                        // We can access the data within the views
-                        Intent i = new Intent(context, ArticleActivity.class);
-                        i.putExtra("article", Parcels.wrap(article));
-                        context.startActivity(i);
-                        Log.d(TAG, "Message " + article + " clicked");
-                    }
+            itemView.setOnClickListener(view -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                    Article article = articleArrayList.get(position);
+                    // We can access the data within the views
+                    Intent i = new Intent(context, ArticleActivity.class);
+                    i.putExtra("article", Parcels.wrap(article));
+                    context.startActivity(i);
+                    Log.d(TAG, "Message " + article + " clicked");
                 }
             });
         }

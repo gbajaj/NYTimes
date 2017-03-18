@@ -1,4 +1,4 @@
-package codepath.gauravbajaj.com.nytimes.network;
+package codepath.gauravbajaj.com.nytimes.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

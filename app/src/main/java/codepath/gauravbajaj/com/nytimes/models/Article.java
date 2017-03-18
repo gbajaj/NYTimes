@@ -7,9 +7,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import codepath.gauravbajaj.com.nytimes.network.Headline;
-import codepath.gauravbajaj.com.nytimes.network.Multimedia;
-
 /**
  * Created by gauravb on 3/6/17.
  */

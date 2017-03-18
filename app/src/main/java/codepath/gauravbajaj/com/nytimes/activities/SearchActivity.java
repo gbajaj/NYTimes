@@ -29,7 +29,7 @@ import codepath.gauravbajaj.com.nytimes.data.UserPreferences;
 import codepath.gauravbajaj.com.nytimes.fragments.DatePickerFragment;
 import codepath.gauravbajaj.com.nytimes.fragments.SettingsDialogFragment;
 import codepath.gauravbajaj.com.nytimes.models.Article;
-import codepath.gauravbajaj.com.nytimes.network.NYResponse;
+import codepath.gauravbajaj.com.nytimes.models.NYResponse;
 import codepath.gauravbajaj.com.nytimes.network.Observables;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
