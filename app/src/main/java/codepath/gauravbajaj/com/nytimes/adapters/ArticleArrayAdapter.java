@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import org.parceler.Parcels;
 
@@ -20,11 +22,12 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import codepath.gauravbajaj.com.nytimes.NYTimesApp;
 import codepath.gauravbajaj.com.nytimes.R;
 import codepath.gauravbajaj.com.nytimes.activities.ArticleActivity;
 import codepath.gauravbajaj.com.nytimes.models.Article;
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
+//import com.squareup.picasso.Picasso;
 
 /**
  * Created by gauravb on 3/15/17.
@@ -32,12 +35,13 @@ import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
 public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
     private static final String TAG = ArticleArrayAdapter.class.getSimpleName();
-    Picasso picasso = NYTimesApp.instance().picasso;
+    //    Picasso picasso = NYTimesApp.instance().picasso;
     ArrayList<Article> articleArrayList;
     Context context;
+//    Glide glide = NYTimesApp.instance().glide;
 
-    public ArticleArrayAdapter(Context context, ArrayList<Article> articleArrayList, Picasso picasso) {
-        this.picasso = picasso;
+
+    public ArticleArrayAdapter(Context context, ArrayList<Article> articleArrayList) {
         this.articleArrayList = articleArrayList;
         this.context = context;
         if (articleArrayList == null) {
@@ -67,19 +71,20 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         holder.articleText.setText(article.getMainHeadLine());
         String thumbNail = article.getThumbNail();
         if (TextUtils.isEmpty(thumbNail) == false) {
-            picasso.load(thumbNail)
-//                .placeholder(placeHolder)
-                    .transform(new RoundedCornersTransformation(2, 2
-                    )).into(holder.articleImage, new Callback() {
+            Glide.with(context).load(thumbNail).listener(new RequestListener<String, GlideDrawable>() {
                 @Override
-                public void onSuccess() {
+                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    Log.d(TAG, "Glide onException: ");
+                    return false;
                 }
 
                 @Override
-                public void onError() {
-
+                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    Log.d(TAG, "Glide downloaded : " + model);
+                    return false;
                 }
-            });
+            }).bitmapTransform(
+                    new RoundedCornersTransformation(context, 2, 2)).into(holder.articleImage);
         }
     }
 

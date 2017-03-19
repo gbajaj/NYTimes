@@ -33,6 +33,7 @@ import codepath.gauravbajaj.com.nytimes.fragments.SettingsDialogFragment;
 import codepath.gauravbajaj.com.nytimes.models.Article;
 import codepath.gauravbajaj.com.nytimes.models.NYResponse;
 import codepath.gauravbajaj.com.nytimes.network.Observables;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -61,7 +62,7 @@ public class SearchActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        articleArrayAdapter = new ArticleArrayAdapter(this, articleArrayList, NYTimesApp.instance().picasso);
+        articleArrayAdapter = new ArticleArrayAdapter(this, articleArrayList);
 
         rvArticles.setAdapter(articleArrayAdapter);
         // Set layout manager to position the items
@@ -89,7 +90,8 @@ public class SearchActivity extends AppCompatActivity {
                     articleArrayAdapter.notifyDataSetChanged();
                 },
 
-                throwable -> Toast.makeText(context, "Error Loading results", Toast.LENGTH_SHORT).show(),
+                throwable -> {
+                },
 
                 () -> Log.d(TAG, "onCompleted"));
     }
@@ -113,7 +115,8 @@ public class SearchActivity extends AppCompatActivity {
                 // perform query here
                 getIntent().putExtra("Query", query);
                 if (TextUtils.isEmpty(query) == false) {
-                    fetchResults(query, 0).subscribeOn(Schedulers.io())
+                    fetchResults(query, 0)
+                            .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     nyResponse -> {
@@ -123,7 +126,17 @@ public class SearchActivity extends AppCompatActivity {
                                         articleAdaptersEndlessScrollListener.resetState();
                                         articleArrayAdapter.notifyDataSetChanged();
                                     },
-                                    throwable -> Log.d(TAG, "Message "),
+                                    throwable -> {
+                                        Log.d(TAG, "Message ");
+                                        if (throwable instanceof HttpException) {
+                                            HttpException exception = (HttpException) throwable;
+                                            if (exception.code() == 429) {
+                                                Toast.makeText(context, "429", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                        throwable.printStackTrace();
+
+                                    },
                                     () -> Log.d(TAG, "onComplete()"));
                 }
 
@@ -139,10 +152,14 @@ public class SearchActivity extends AppCompatActivity {
                 return false;
             }
         });
-        searchView.setOnSearchClickListener(v -> {Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
-            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);});
+        searchView.setOnSearchClickListener(v -> {
+            Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
+        });
         searchView.setOnCloseListener(() -> {
-            Toast.makeText(this, "close", Toast.LENGTH_SHORT).show(); return false;});
+            Toast.makeText(this, "close", Toast.LENGTH_SHORT).show();
+            return false;
+        });
         // Customize searchview text and hint colors
         int searchEditId = android.support.v7.appcompat.R.id.search_src_text;
         EditText et = (EditText) searchView.findViewById(searchEditId);
@@ -185,6 +202,17 @@ public class SearchActivity extends AppCompatActivity {
         String sortOrder = userPreferences.getSortOrder();
         String newsDesk = userPreferences.getNewsDeskValues();
         return observables.searchArticles(query, page, sortOrder, searchBeginDate, newsDesk);
+//        .
+//                retryWhen(errors -> errors.flatMap(error -> {
+//            // For IOExceptions, we  retry
+//            if (error instanceof HttpException) {
+//                return Observable.just(null);
+//            }
+//
+//            // For anything else, don't retry
+//            return Observable.error(error);
+//        }))
+//                ;
     }
 
     //Create endless scroll listener

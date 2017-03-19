@@ -4,18 +4,15 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.jakewharton.picasso.OkHttp3Downloader;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
-import okhttp3.OkHttpClient;
 
 /**
  * Created by gauravb on 3/15/17.
  */
 
 public class NYTimesApp extends Application {
-    public OkHttpClient client;
-    public Picasso picasso;
+    public Glide glide;
     private static NYTimesApp instance;
     private static final String SHARED_PREF_DEFAULT = "SharedPreferencesDefault";
 
@@ -26,8 +23,7 @@ public class NYTimesApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        client = new OkHttpClient();
-        picasso = new Picasso.Builder(this).downloader(new OkHttp3Downloader(client)).build();
+        glide  = Glide.get(this);
     }
 
     public static NYTimesApp instance() {

@@ -87,22 +87,23 @@ public class UserPreferences {
     public String getNewsDeskValues() {
         StringBuilder newsDesk = new StringBuilder();
         StringBuilder selection = new StringBuilder();
-        newsDesk.append("news_desk:(\"");
+        newsDesk.append("news_desk:(");
 
         if (isFashionNewsEnabled()) {
-            selection.append("Fashion & Style");
+            selection.append("\"Fashion & Style\"");
         }
         if (isArtNewsEnabled()) {
-            selection.append("Arts");
+            selection.append("\"Arts\"");
         }
         if (isSportsNewsEnabled()) {
-            selection.append("Sports");
+            selection.append("\"Sports\"");
         }
         if (selection.length() == 0) {
-            selection.append("none");
+            selection.append("\"none\"");
         }
+
         newsDesk.append(selection.toString());
-        newsDesk.append("\")");
+        newsDesk.append(")");
         return newsDesk.toString();
     }
 }
