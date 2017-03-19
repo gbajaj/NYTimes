@@ -1,10 +1,13 @@
 package codepath.gauravbajaj.com.nytimes.activities;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -12,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -39,66 +41,31 @@ public class SearchActivity extends AppCompatActivity {
     private static final String TAG = SearchActivity.class.getSimpleName();
     private static final String SettingsFragment = "Sample Fragment";
 
-    @BindView(R.id.btnSearch)
-    Button btnSearch;
-    @BindView(R.id.etQuery)
-    EditText etQuery;
     @BindView(R.id.search_activity_rvArticles)
     RecyclerView rvArticles;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     ArrayList<Article> articleArrayList = new ArrayList<>();
     ArticleArrayAdapter articleArrayAdapter;
     Context context = NYTimesApp.instance();
     UserPreferences userPreferences = new UserPreferences();
-    private StaggeredGridLayoutManager staggeredGridLayoutManager;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3,
+            StaggeredGridLayoutManager.VERTICAL);
+    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+
         articleArrayAdapter = new ArticleArrayAdapter(this, articleArrayList, NYTimesApp.instance().picasso);
+
         rvArticles.setAdapter(articleArrayAdapter);
         // Set layout manager to position the items
-        staggeredGridLayoutManager = new StaggeredGridLayoutManager(3,
-                StaggeredGridLayoutManager.VERTICAL);
         rvArticles.setLayoutManager(staggeredGridLayoutManager);
-
-        rvArticles.setLayoutManager(staggeredGridLayoutManager);
-
-        //Create endless scroll listener
-        final ArticleAdaptersEndlessScrollListener articleAdaptersEndlessScrollListener =
-                new ArticleAdaptersEndlessScrollListener(staggeredGridLayoutManager) {
-                    @Override
-                    public void onLoadMore(int page, int totalItemsCount, RecyclerView recyclerView) {
-                        loadNextDataFromApi(page);
-                    }
-                };
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String query = etQuery.getText().toString();
-                getIntent().putExtra("Query", query);
-                if (TextUtils.isEmpty(query) == false) {
-                    fetchResults(query, 0).subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    nyResponse -> {
-                                        final List<Article> articles = nyResponse.getResponse().getArticles();
-                                        articleArrayList.clear();
-                                        articleArrayList.addAll(articles);
-                                        articleAdaptersEndlessScrollListener.resetState();
-                                        articleArrayAdapter.notifyDataSetChanged();
-                                    },
-                                    throwable -> Log.d(TAG, "Message "),
-                                    () -> Log.d(TAG, "onComplete()"));
-                }
-                Toast.makeText(SearchActivity.this, "searching for " + query, Toast.LENGTH_SHORT).show();
-            }
-        });
-
         rvArticles.addOnScrollListener(articleAdaptersEndlessScrollListener);
     }
 
@@ -138,8 +105,71 @@ public class SearchActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // perform query here
+                getIntent().putExtra("Query", query);
+                if (TextUtils.isEmpty(query) == false) {
+                    fetchResults(query, 0).subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    nyResponse -> {
+                                        final List<Article> articles = nyResponse.getResponse().getArticles();
+                                        articleArrayList.clear();
+                                        articleArrayList.addAll(articles);
+                                        articleAdaptersEndlessScrollListener.resetState();
+                                        articleArrayAdapter.notifyDataSetChanged();
+                                    },
+                                    throwable -> Log.d(TAG, "Message "),
+                                    () -> Log.d(TAG, "onComplete()"));
+                }
+
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnSearchClickListener(v -> {Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);});
+        searchView.setOnCloseListener(() -> {
+            Toast.makeText(this, "close", Toast.LENGTH_SHORT).show(); return false;});
+        // Customize searchview text and hint colors
+        int searchEditId = android.support.v7.appcompat.R.id.search_src_text;
+        EditText et = (EditText) searchView.findViewById(searchEditId);
+        et.setTextColor(Color.WHITE);
+        et.setHintTextColor(0x80ffffff);
+
+
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        switch (id) {
+            case R.id.miCompose:
+                onFilterAction(item);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public void onClick(View view) {
         FragmentManager fm = getSupportFragmentManager();
@@ -156,4 +186,14 @@ public class SearchActivity extends AppCompatActivity {
         String newsDesk = userPreferences.getNewsDeskValues();
         return observables.searchArticles(query, page, sortOrder, searchBeginDate, newsDesk);
     }
+
+    //Create endless scroll listener
+    final ArticleAdaptersEndlessScrollListener articleAdaptersEndlessScrollListener =
+            new ArticleAdaptersEndlessScrollListener(staggeredGridLayoutManager) {
+                @Override
+                public void onLoadMore(int page, int totalItemsCount, RecyclerView recyclerView) {
+                    loadNextDataFromApi(page);
+                }
+            };
+
 }

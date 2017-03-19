@@ -1,10 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_search"
+        android:orderInCategory="1"
+        android:title="Search"
+        android:icon="@drawable/ic_search_white_24px"
+        style="@style/AppTheme.SearchView"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
     <item
+        android:orderInCategory="2"
         android:id="@+id/miCompose"
         android:icon="@drawable/ic_sort_white_24dp"
-        app:showAsAction="ifRoom"
-        android:onClick="onFilterAction"
-        android:title="Filter">
-    </item>
+        android:title="Filter"
+        app:showAsAction="always" />
+
 </menu>
