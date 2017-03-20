@@ -87,8 +87,11 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
                     new RoundedCornersTransformation(context, 2, 2)).into(holder.articleImage);
         }
         String newsDesk = article.getNewdesk();
+        holder.newsDeskTv.setVisibility(View.VISIBLE);
         if (TextUtils.isEmpty(newsDesk) == false && "None".equals(newsDesk) == false) {
             holder.newsDeskTv.setText(newsDesk);
+        } else {
+            holder.newsDeskTv.setVisibility(View.GONE);
         }
         String snippet = article.getSnippet();
         if (TextUtils.isEmpty(snippet) == false) {

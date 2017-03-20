@@ -33,6 +33,7 @@ import codepath.gauravbajaj.com.nytimes.fragments.SettingsDialogFragment;
 import codepath.gauravbajaj.com.nytimes.models.Article;
 import codepath.gauravbajaj.com.nytimes.models.NYResponse;
 import codepath.gauravbajaj.com.nytimes.network.Observables;
+import codepath.gauravbajaj.com.nytimes.network.helper.NetworkConnectivityHelper;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -113,6 +114,10 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // perform query here
+                if (NetworkConnectivityHelper.isNetworkAvailable() == false) {
+                    notifyNoNetwork();
+                    return true;
+                }
                 getIntent().putExtra("Query", query);
                 if (TextUtils.isEmpty(query) == false) {
                     fetchResults(query, 0)
@@ -153,8 +158,11 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
         searchView.setOnSearchClickListener(v -> {
-            Toast.makeText(this, "Search Clicked", Toast.LENGTH_SHORT).show();
-            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
+
+            if (NetworkConnectivityHelper.isNetworkAvailable() == false) {
+                notifyNoNetwork();
+            }
+//            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
         });
         searchView.setOnCloseListener(() -> {
             Toast.makeText(this, "close", Toast.LENGTH_SHORT).show();
@@ -168,6 +176,10 @@ public class SearchActivity extends AppCompatActivity {
 
 
         return true;
+    }
+
+    private void notifyNoNetwork() {
+        Toast.makeText(this, "No Network Available", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -220,6 +232,10 @@ public class SearchActivity extends AppCompatActivity {
             new ArticleAdaptersEndlessScrollListener(staggeredGridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount, RecyclerView recyclerView) {
+                    if (NetworkConnectivityHelper.isNetworkAvailable() == false) {
+                        notifyNoNetwork();
+                        return;
+                    }
                     loadNextDataFromApi(page);
                 }
             };

@@ -13,7 +13,7 @@ import codepath.gauravbajaj.com.nytimes.NYTimesApp;
  */
 
 public class NetworkConnectivityHelper {
-    private Boolean isNetworkAvailable() {
+    public static Boolean isNetworkAvailable() {
         Context context = NYTimesApp.instance();
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
