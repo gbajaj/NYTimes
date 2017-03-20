@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -166,6 +167,8 @@ public class SearchActivity extends AppCompatActivity {
                 return false;
             }
         });
+        ImageView searchClose = (ImageView) searchView.findViewById(android.support.v7.appcompat.R.id.search_close_btn);
+        searchClose.setImageResource(R.drawable.ic_close_white_24px);
         searchView.setOnSearchClickListener(v -> {
 
             if (NetworkConnectivityHelper.isNetworkAvailable() == false) {
