@@ -83,7 +83,7 @@ public class SearchActivity extends AppCompatActivity {
         //  --> Append the new data objects to the existing set of items inside the array of items
         //  --> Notify the adapter of the new items made with `notifyDataSetChanged()`
         String query = getIntent().getStringExtra("Query");
-        if (articleArrayList.size() > 0 && articleArrayList.get(articleArrayList.size() -1) == null) {
+        if (articleArrayList.size() > 0 && articleArrayList.get(articleArrayList.size() - 1) == null) {
             return;
         }
         articleArrayList.add(null);
@@ -97,6 +97,9 @@ public class SearchActivity extends AppCompatActivity {
                     final List<Article> articles = nyResponse.getResponse().getArticles();
                     articleArrayList.addAll(articles);
                     articleArrayAdapter.notifyDataSetChanged();
+                    if (articles.isEmpty()) {
+                        showToast("No More Results");
+                    }
                 },
 
                 throwable -> {
@@ -111,7 +114,6 @@ public class SearchActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         SettingsDialogFragment settingsDialogFragment = new SettingsDialogFragment();
         settingsDialogFragment.show(fm, SettingsFragment);
-        Toast.makeText(this, "ToastText", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -140,6 +142,10 @@ public class SearchActivity extends AppCompatActivity {
                                         articleArrayList.addAll(articles);
                                         articleAdaptersEndlessScrollListener.resetState();
                                         articleArrayAdapter.notifyDataSetChanged();
+                                        if (articleArrayList.isEmpty()) {
+                                            showToast("No Results Found!");
+                                        }
+
                                     },
                                     throwable -> {
                                         Log.d(TAG, "Message ");
@@ -155,8 +161,6 @@ public class SearchActivity extends AppCompatActivity {
                                     () -> Log.d(TAG, "onComplete()"));
                 }
 
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
                 searchView.clearFocus();
 
                 return true;
@@ -174,10 +178,8 @@ public class SearchActivity extends AppCompatActivity {
             if (NetworkConnectivityHelper.isNetworkAvailable() == false) {
                 notifyNoNetwork();
             }
-//            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px);
         });
         searchView.setOnCloseListener(() -> {
-            Toast.makeText(this, "close", Toast.LENGTH_SHORT).show();
             return false;
         });
         // Customize searchview text and hint colors
@@ -191,7 +193,13 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void notifyNoNetwork() {
-        Toast.makeText(this, "No Network Available", Toast.LENGTH_SHORT).show();
+        showToast("No Network Available");
+    }
+
+    private void showToast(String text) {
+        if (TextUtils.isEmpty(text) == false) {
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
