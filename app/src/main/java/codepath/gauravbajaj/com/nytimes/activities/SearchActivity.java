@@ -82,16 +82,25 @@ public class SearchActivity extends AppCompatActivity {
         //  --> Append the new data objects to the existing set of items inside the array of items
         //  --> Notify the adapter of the new items made with `notifyDataSetChanged()`
         String query = getIntent().getStringExtra("Query");
+        if (articleArrayList.size() > 0 && articleArrayList.get(articleArrayList.size() -1) == null) {
+            return;
+        }
+        articleArrayList.add(null);
+        articleArrayAdapter.notifyItemInserted(articleArrayList.size());
         fetchResults(query, offset).
                 subscribeOn(Schedulers.io()).
                 observeOn(AndroidSchedulers.mainThread()).subscribe(
                 nyResponse -> {
+                    articleArrayList.remove(articleArrayList.size() - 1);
+                    articleArrayAdapter.notifyItemRemoved(articleArrayList.size());
                     final List<Article> articles = nyResponse.getResponse().getArticles();
                     articleArrayList.addAll(articles);
                     articleArrayAdapter.notifyDataSetChanged();
                 },
 
                 throwable -> {
+                    articleArrayList.remove(articleArrayList.size() - 1);
+                    articleArrayAdapter.notifyItemRemoved(articleArrayList.size());
                 },
 
                 () -> Log.d(TAG, "onCompleted"));

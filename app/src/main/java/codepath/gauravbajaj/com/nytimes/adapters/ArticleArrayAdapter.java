@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -33,13 +34,12 @@ import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
  * Created by gauravb on 3/15/17.
  */
 
-public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapter.ViewHolder> {
+public class ArticleArrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = ArticleArrayAdapter.class.getSimpleName();
-    //    Picasso picasso = NYTimesApp.instance().picasso;
     ArrayList<Article> articleArrayList;
     Context context;
-//    Glide glide = NYTimesApp.instance().glide;
-
+    private final int VIEW_ITEM = 1;
+    private final int VIEW_PROG = 0;
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> articleArrayList) {
         this.articleArrayList = articleArrayList;
@@ -50,56 +50,73 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
     }
 
     @Override
-    public ArticleArrayAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+        RecyclerView.ViewHolder viewHolder;
+        if (viewType == VIEW_ITEM) {
+            LayoutInflater inflater = LayoutInflater.from(context);
 
-        // Inflate the custom layout
-        View contactView = inflater.inflate(R.layout.article_adapter_item_article_result, parent, false);
+            // Inflate the custom layout
+            View contactView = inflater.inflate(R.layout.article_adapter_item_article_result, parent, false);
 
-        // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(contactView);
+            // Return a new holder instance
+            viewHolder = new ViewHolder(contactView);
+        } else {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.progress_item, parent, false);
+
+            viewHolder = new ProgressViewHolder(v);
+        }
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         //Get the data iterm from the current position
-        final Article article = articleArrayList.get(position);
-        holder.articleImage.setImageResource(0);
-        String headLine = "";
-        holder.articleText.setText(article.getMainHeadLine());
-        String thumbNail = article.getThumbNail();
-        if (TextUtils.isEmpty(thumbNail) == false) {
-            Glide.with(context).load(thumbNail).listener(new RequestListener<String, GlideDrawable>() {
-                @Override
-                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                    Log.d(TAG, "Glide onException: ");
-                    return false;
-                }
+        if (viewHolder instanceof ViewHolder) {
+            ViewHolder holder = (ViewHolder) viewHolder;
+            final Article article = articleArrayList.get(position);
+            holder.articleImage.setImageResource(0);
+            String headLine = "";
+            holder.articleText.setText(article.getMainHeadLine());
+            String thumbNail = article.getThumbNail();
+            if (TextUtils.isEmpty(thumbNail) == false) {
+                Glide.with(context).load(thumbNail).listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        Log.d(TAG, "Glide onException: ");
+                        return false;
+                    }
 
-                @Override
-                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.d(TAG, "Glide downloaded : " + model);
-                    return false;
-                }
-            }).bitmapTransform(
-                    new RoundedCornersTransformation(context, 2, 2)).into(holder.articleImage);
-        }
-        String newsDesk = article.getNewdesk();
-        holder.newsDeskTv.setVisibility(View.VISIBLE);
-        if (TextUtils.isEmpty(newsDesk) == false && "None".equals(newsDesk) == false) {
-            holder.newsDeskTv.setText(newsDesk);
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        Log.d(TAG, "Glide downloaded : " + model);
+                        return false;
+                    }
+                }).bitmapTransform(
+                        new RoundedCornersTransformation(context, 2, 2)).into(holder.articleImage);
+            }
+            String newsDesk = article.getNewdesk();
+            holder.newsDeskTv.setVisibility(View.VISIBLE);
+            if (TextUtils.isEmpty(newsDesk) == false && "None".equals(newsDesk) == false) {
+                holder.newsDeskTv.setText(newsDesk);
+            } else {
+                holder.newsDeskTv.setVisibility(View.GONE);
+            }
+            String snippet = article.getSnippet();
+            if (TextUtils.isEmpty(snippet) == false) {
+                holder.snippetTv.setText(snippet);
+
+            }
         } else {
-            holder.newsDeskTv.setVisibility(View.GONE);
-        }
-        String snippet = article.getSnippet();
-        if (TextUtils.isEmpty(snippet) == false) {
-            holder.snippetTv.setText(snippet);
-
+            ((ProgressViewHolder)viewHolder).progressBar.setIndeterminate(true);
         }
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return articleArrayList.get(position) != null? VIEW_ITEM: VIEW_PROG;
+    }
 
     @Override
     public int getItemCount() {
@@ -139,6 +156,15 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
                     Log.d(TAG, "Message " + article + " clicked");
                 }
             });
+        }
+    }
+
+    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
+        public ProgressBar progressBar;
+
+        public ProgressViewHolder(View v) {
+            super(v);
+            progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         }
     }
 }
