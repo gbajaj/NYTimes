@@ -40,7 +40,7 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [✓] Used RxAlong with Retrofit
+* [✓] Used RxJava with Retrofit
 
 ## Video Walkthrough
 
