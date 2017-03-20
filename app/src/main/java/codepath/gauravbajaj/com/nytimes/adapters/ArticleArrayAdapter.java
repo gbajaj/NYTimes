@@ -1,7 +1,15 @@
 package codepath.gauravbajaj.com.nytimes.adapters;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import codepath.gauravbajaj.com.nytimes.R;
 import codepath.gauravbajaj.com.nytimes.activities.ArticleActivity;
+import codepath.gauravbajaj.com.nytimes.data.helper.ColorChooser;
 import codepath.gauravbajaj.com.nytimes.models.Article;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
@@ -40,6 +49,7 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     Context context;
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
+    ColorChooser colorChooser = new ColorChooser();
 
     public ArticleArrayAdapter(Context context, ArrayList<Article> articleArrayList) {
         this.articleArrayList = articleArrayList;
@@ -100,6 +110,11 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             holder.newsDeskTv.setVisibility(View.VISIBLE);
             if (TextUtils.isEmpty(newsDesk) == false && "None".equals(newsDesk) == false) {
                 holder.newsDeskTv.setText(newsDesk);
+                String choosen = colorChooser.getColor(newsDesk);
+                if (choosen == null) {
+                    choosen = "#FE5F55";
+                }
+                holder.newsDeskTv.setBackgroundColor(Color.parseColor(choosen));
             } else {
                 holder.newsDeskTv.setVisibility(View.GONE);
             }
@@ -149,11 +164,17 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
                     Article article = articleArrayList.get(position);
+                    launchOnChromeTab(article);
                     // We can access the data within the views
+
+                    /* No longer needed this code As we are Using Chrome Tab now
+
                     Intent i = new Intent(context, ArticleActivity.class);
                     i.putExtra("article", Parcels.wrap(article));
                     context.startActivity(i);
                     Log.d(TAG, "Message " + article + " clicked");
+
+                    */
                 }
             });
         }
@@ -166,5 +187,30 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             super(v);
             progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         }
+    }
+
+    private void launchOnChromeTab(Article article) {
+
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+        intentBuilder.addDefaultShareMenuItem();
+        intentBuilder.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, article.getWeburl());
+
+        int requestCode = 100;
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_share_white_24px);
+        intentBuilder.setActionButton(icon, "Share Link", pendingIntent, true);
+
+        CustomTabsIntent customTabsIntent = intentBuilder.build();
+
+        customTabsIntent.launchUrl(context, Uri.parse(article.getWeburl()));
     }
 }
