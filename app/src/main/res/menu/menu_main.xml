@@ -10,7 +10,7 @@
     <item
         android:orderInCategory="2"
         android:id="@+id/miCompose"
-        android:icon="@drawable/ic_sort_white_24dp"
+        android:icon="@drawable/ic_filter_list_white_24px"
         android:title="Filter"
         app:showAsAction="always" />
 

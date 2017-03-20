@@ -51,7 +51,7 @@ public class SearchActivity extends AppCompatActivity {
     ArticleArrayAdapter articleArrayAdapter;
     Context context = NYTimesApp.instance();
     UserPreferences userPreferences = new UserPreferences();
-    private StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3,
+    private StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2,
             StaggeredGridLayoutManager.VERTICAL);
     ;
 

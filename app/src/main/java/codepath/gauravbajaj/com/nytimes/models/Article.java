@@ -20,6 +20,22 @@ public class Article {
         return weburl;
     }
 
+    @SerializedName("snippet")
+    @Expose
+    String snippet;
+
+    public String getSnippet() {
+        return snippet;
+    }
+
+    public String getNewdesk() {
+        return newdesk;
+    }
+
+    @SerializedName("news_desk")
+    @Expose
+    String newdesk;
+
     @SerializedName("headline")
     @Expose
     Headline headLine;

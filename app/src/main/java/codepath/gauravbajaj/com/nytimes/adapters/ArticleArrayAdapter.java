@@ -86,7 +86,17 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
             }).bitmapTransform(
                     new RoundedCornersTransformation(context, 2, 2)).into(holder.articleImage);
         }
+        String newsDesk = article.getNewdesk();
+        if (TextUtils.isEmpty(newsDesk) == false && "None".equals(newsDesk) == false) {
+            holder.newsDeskTv.setText(newsDesk);
+        }
+        String snippet = article.getSnippet();
+        if (TextUtils.isEmpty(snippet) == false) {
+            holder.snippetTv.setText(snippet);
+
+        }
     }
+
 
     @Override
     public int getItemCount() {
@@ -100,8 +110,13 @@ public class ArticleArrayAdapter extends RecyclerView.Adapter<ArticleArrayAdapte
         // for any view that will be set as you render a row
         @BindView(R.id.item_article_image)
         public ImageView articleImage;
-        @BindView(R.id.item_article_image_text)
+        @BindView(R.id.item_article_headline)
         public TextView articleText;
+        @BindView(R.id.item_article_news_desk)
+        public TextView newsDeskTv;
+        @BindView(R.id.item_article_snippet)
+        public TextView snippetTv;
+
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
